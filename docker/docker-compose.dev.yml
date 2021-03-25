@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  mongo:
+    container_name: mongo-container
+    image: mongo:3
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - ./data:/data/db
+    ports:
+      - 27017:27017
+
+  # json-server-mock:
+  #   container_name: json-server-mock-container
+  #   restart: always
+  #   build:
+  #     context: ../json-server-mock/.
+  #     dockerfile: Dockerfile
+  #   command: node index.js
+  #   environment:
+  #     - PORT=4000
+  #   ports:
+  #     - 4000:4000
