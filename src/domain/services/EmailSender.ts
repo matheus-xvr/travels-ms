@@ -29,9 +29,9 @@ export class EmailSender {
   }
 
   private buidMessage(travel: any): string {
-    return `Lembra da viagem de cruzeiro que percorrerá ${travel.name} que você estava planejando fazer em 2022?<\\br>`
-      + `Então, o preço baixou! <\\br>No momento, ela está custando ${this.buildPrice(travel?.departures[0].minPrice)}.<\\br>`
-      + `A data da partida será em ${this.buildDate(travel?.departures[0].id)}.`;
+    return `<html>Lembra da viagem de cruzeiro que percorrerá ${travel.name} que você estava planejando fazer em 2022?<br>`
+      + `Então, o preço baixou! <br>No momento, ela está custando ${this.buildPrice(travel?.departures[0].minPrice)}.<br>`
+      + `A data da partida será em ${this.buildDate(travel?.departures[0].id)}.</html>`;
   }
 
   private buildPrice(minPrice: number): string {

@@ -13,8 +13,6 @@ import {
 
 @Injectable()
 export class GetTravels {
-  private sentEmail = false;
-
   constructor(
     @Inject('TravelService')
     private readonly travelService: ITravelService,
@@ -30,16 +28,22 @@ export class GetTravels {
 
   public async invoke(): Promise<void> {
     try {
-      if (this.sentEmail) {
-        return null;
-      }
       let travels = await this.travelService.getContent();
       if (!travels) {
         travels = await this.travelService.getContent(); // TODO
       }
       const [travel] = travels;
 
-      if (!await this.priceHasBeenChanged(travel)) {
+      const {
+        minPriceFromDb,
+        minPriceFromService,
+      } = await this.getMinPrices(travel);
+
+      if (!this.priceHasBeenChanged(minPriceFromDb, minPriceFromService)) {
+        return null;
+      }
+
+      if (!this.priceHasBeenDecrease(minPriceFromDb, minPriceFromService)) {
         return null;
       }
 
@@ -77,16 +81,26 @@ export class GetTravels {
     if (hasNext) {
       return this.emailDispatcher(travel, adminUser, { nextValue: next });
     }
-    this.sentEmail = true;
     return true;
   }
 
-  private async priceHasBeenChanged(travel: any): Promise<boolean> {
+  private async getMinPrices(travel: any): Promise<any> {
     const minPriceFromService = travel.departures[0].minPrice;
 
     const { departures = [] } = await this.travelsRepositoryReader.getById(travel.id) || {};
     const minPriceFromDb = departures[0]?.minPrice;
 
-    return minPriceFromService !== minPriceFromDb;
+    return {
+      minPriceFromService,
+      minPriceFromDb,
+    };
+  }
+
+  private priceHasBeenChanged(minPriceFromDb: number, minPriceFromService: number): boolean {
+    return minPriceFromDb !== minPriceFromService;
+  }
+
+  private priceHasBeenDecrease(minPriceFromDb: number, minPriceFromService: number): boolean {
+    return minPriceFromDb > minPriceFromService;
   }
 }
