@@ -1,3 +1,4 @@
+import { UnprocessableEntityException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { CreateUser } from '@src/application';
@@ -60,6 +61,24 @@ describe('application/travels/CreateUsers', () => {
       expect(data).toEqual({ success: true });
       expect(emailValidatorSpy).toHaveBeenCalledWith('testname@teste.com');
       expect(usersRepositoryWriterSpy).toHaveBeenCalled();
+    });
+
+    test('should return UnprocessableEntityException if email is in use', async () => {
+      const emailValidatorSpy = jest.spyOn(emailValidator, 'hasInUse')
+        .mockImplementationOnce(() => Promise.resolve(true));
+      const usersRepositoryWriterSpy = jest.spyOn(usersRepositoryWriter, 'create')
+        .mockImplementationOnce(() => Promise.resolve({ success: true }) as any);
+      try {
+        const userfake = {
+          name: 'testName',
+          email: 'testname@teste.com',
+        };
+        await createUser.invoke(userfake);
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnprocessableEntityException);
+        expect(emailValidatorSpy).toHaveBeenCalledWith('testname@teste.com');
+        expect(usersRepositoryWriterSpy).not.toHaveBeenCalled();
+      }
     });
   });
 });
