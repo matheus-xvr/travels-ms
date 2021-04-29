@@ -37,5 +37,6 @@ module.exports = {
     "@domain/(.*)": ["<rootDir>/src/domain/$1"],
     "@infrastructure/(.*)": ["<rootDir>/src/infrastructure/$1"],
     "@interface/(.*)": "<rootDir>/src/interface/$1",
+    "@utils/(.*)": "<rootDir>/src/utils/$1",
   },
 };
